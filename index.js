@@ -6,6 +6,8 @@ var { buildSchema } = require('graphql');
 var schema = buildSchema(`
   type Query {
     hello: String
+    random: Float!
+    rollThreeDice: [Int]
   }
 `);
 
@@ -14,7 +16,14 @@ var root = {
   hello: () => {
     return 'Hello world!';
   },
+  random: () => {
+      return Math.random();
+  },
+  rollThreeDice: () => {
+    return [1, 2, 3].map(_ => 1 + Math.floor(Math.random() * 6));
+  },
 };
+
 
 var app = express();
 app.use('/graphql', graphqlHTTP({
