@@ -1,21 +1,26 @@
-const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const graphql = require("graphql");
-const ExpressGraphQL = require("express-graphql");
+var express = require('express');
+var graphqlHTTP = require('express-graphql');
+var { buildSchema } = require('graphql');
 
+// Construct a schema, using GraphQL schema language
+var schema = buildSchema(`
+  type Query {
+    hello: String
+  }
+`);
 
-const server= express();
-const database = new sqlite3.Database("./my.db");
+// The root provides a resolver function for each API endpoint
+var root = {
+  hello: () => {
+    return 'Hello world!';
+  },
+};
 
-
-const createContactTable = () => {
-     const query = `
-     CREATE TABLE IF NOT EXISTS contacts(
-         id integer PRIMARY KEY,
-         firstName text,
-         lastName text,
-         email text UNIQUE
-     )`
-     return database.run(query);
-}
-createContactTable();
+var app = express();
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  rootValue: root,
+  graphiql: true,
+}));
+app.listen(4000);
+console.log('Running a GraphQL API server at localhost:4000/graphql');
